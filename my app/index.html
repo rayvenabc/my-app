@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>تطبيق متابعة النفقات والدخل</title>
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #dceefb, #f7f9fc);
+    color: #2c3e50;
+    margin: 0;
+    padding: 20px 15px 40px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    margin-top: 0;
+    font-weight: 900;
+    color: #3a549a;
+    font-size: 2.5rem;
+    letter-spacing: 1.2px;
+    text-shadow: 0px 2px 6px rgba(58, 84, 154, 0.3);
+  }
+  h2 {
+    margin: 25px 0 15px 0;
+    color: #34495e;
+    font-weight: 700;
+    font-size: 1.6rem;
+    border-bottom: 3px solid #3a549a;
+    padding-bottom: 6px;
+  }
+  /* Container */
+  .container {
+    max-width: 900px;
+    width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px 40px;
+    box-shadow: 0 25px 40px -20px rgba(16, 39, 112, .2);
+    margin-bottom: 40px;
+    transition: box-shadow 0.3s ease;
+  }
+  .container:hover {
+    box-shadow: 0 30px 45px -15px rgba(16, 39, 112, .25);
+  }
+  /* Forms */
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 18px;
+  }
+  label {
+    min-width: 130px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #34495e;
+    align-self: center;
+    user-select:none;
+  }
+  input[type="number"],
+  input[type="date"],
+  select {
+    border: 2.5px solid #bdc6d8;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 1.1rem;
+    flex-grow: 1;
+    min-width: 140px;
+    box-shadow: inset 0 3px 10px rgba(0,0,0,0.04);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  input[type="number"]:focus,
+  input[type="date"]:focus,
+  select:focus {
+    outline: none;
+    border-color: #3a549a;
+    box-shadow: inset 0 3px 14px rgba(58, 84, 154, 0.4);
+  }
+  button {
+    background-color: #3a549a;
+    border: none;
+    color: white;
+    font-weight: 900;
+    font-size: 1.2rem;
+    padding: 14px 32px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select:none;
+    box-shadow: 0 4px 14px rgba(58, 84, 154, 0.4);
+    flex-grow: 1;
+    min-width: 140px;
+  }
+  button:hover {
+    background-color: #253b7a;
+    box-shadow: 0 6px 18px rgba(37, 59, 122, 0.65);
+  }
+  /* Sections side by side */
+  .forms-row {
+    display: flex;
+    gap: 30px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .form-section {
+    flex: 1 1 420px;
+    background: #f7faff;
+    box-shadow: 0 10px 18px rgba(58, 84, 154, 0.1);
+    border-radius: 16px;
+    padding: 24px 28px 32px;
+    transition: transform 0.3s ease;
+  }
+  .form-section:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 22px rgba(58, 84, 154, 0.18);
+  }
+  .form-section h2 {
+    margin-top: 0;
+    font-size: 1.8rem;
+    color: #2e405d;
+  }
+  /* Expense form styled red */
+  #form-expense label,
+  #form-expense select,
+  #form-expense input,
+  #form-expense button {
+    border-color: #e74c3c;
+    color: #c0392b;
+  }
+  #form-expense input,
+  #form-expense select {
+    box-shadow: inset 0 3px 8px rgba(231, 76, 60, 0.12);
+  }
+  #form-expense button {
+    background-color: #e74c3c;
+    color: #fff;
+    box-shadow: 0 5px 16px rgba(231, 76, 60, 0.5);
+  }
+  #form-expense button:hover {
+    background-color: #ba3d2a;
+    box-shadow: 0 7px 22px rgba(186, 61, 42, 0.75);
+  }
+  /* Income form styled green */
+  #form-income label,
+  #form-income select,
+  #form-income input,
+  #form-income button {
+    border-color: #27ae60;
+    color: #1e8449;
+  }
+  #form-income input,
+  #form-income select {
+    box-shadow: inset 0 3px 8px rgba(39, 174, 96, 0.12);
+  }
+  #form-income button {
+    background-color: #27ae60;
+    color: #fff;
+    box-shadow: 0 5px 16px rgba(39, 174, 96, 0.5);
+  }
+  #form-income button:hover {
+    background-color: #1e8449;
+    box-shadow: 0 7px 22px rgba(30, 132, 73, 0.75);
+  }
+  /* Reports */
+  .report-controls {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .report-controls label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #34495e;
+    user-select:none;
+  }
+  .report-controls select {
+    max-width: 180px;
+    padding: 8px 12px;
+    font-size: 1.1rem;
+    border: 2.5px solid #3a549a;
+    border-radius: 10px;
+    box-shadow: inset 0 3px 14px rgba(58, 84, 154, 0.25);
+    transition: border-color 0.3s ease;
+  }
+  .report-controls select:focus {
+    outline: none;
+    border-color: #5472d2;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 1rem;
+  }
+  th, td {
+    padding: 12px 14px;
+    text-align: center;
+  }
+  th {
+    background-color: #3a549a;
+    color: white;
+    font-weight: 700;
+    border-radius: 8px 8px 0 0;
+    box-shadow: inset 0 -4px 8px rgba(0,0,0,0.15);
+  }
+  tbody tr:nth-child(odd) {
+    background-color: #f5f8ff;
+  }
+  tbody tr:hover {
+    background-color: #dbe4ff;
+    transition: background-color 0.25s ease;
+  }
+  /* Summary cards */
+  .summary-cards {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .card {
+    flex: 1 1 260px;
+    background: linear-gradient(145deg, #edf2fd, #e8edfc);
+    border-radius: 18px;
+    padding: 22px 0;
+    text-align: center;
+    box-shadow: 8px 8px 15px #c9d9ff,
+                -8px -8px 15px #ffffff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 12px 12px 20px #b0c9ff,
+                -12px -12px 20px #ffffff;
+  }
+  .card h3 {
+    margin: 0 0 12px;
+    font-size: 1.25rem;
+    color: #2f3f87;
+    letter-spacing: 0.03em;
+  }
+  .card p {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #3a549a;
+    margin: 0;
+    letter-spacing: 0.04em;
+  }
+  /* Log */
+  .log-container {
+    max-height: 190px;
+    overflow-y: auto;
+    background: #e6edff;
+    border-radius: 14px;
+    padding: 14px 26px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    color: #34495e;
+    box-shadow: inset 4px 4px 10px #c5dbff,
+                inset -4px -4px 10px #ffffff;
+  }
+  .log-entry {
+    margin-bottom: 8px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  /* Scrollbar styling */
+  .log-container::-webkit-scrollbar {
+    width: 9px;
+  }
+  .log-container::-webkit-scrollbar-track {
+    background: #e6edff;
+    border-radius: 14px;
+  }
+  .log-container::-webkit-scrollbar-thumb {
+    background: #92a8d1;
+    border-radius: 14px;
+  }
+  .log-container::-webkit-scrollbar-thumb:hover {
+    background: #6f83be;
+  }
+  /* Reset button style */
+  #reset-button {
+    background-color: #d35400;
+    margin-top: 30px;
+    max-width: 280px;
+    width: 100%;
+    padding: 16px 0;
+    font-size: 1.3rem;
+    border-radius: 18px;
+    font-weight: 900;
+    box-shadow: 0 5px 20px rgba(211, 84, 0, 0.55);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #reset-button:hover {
+    background-color: #a84300;
+    box-shadow: 0 7px 26px rgba(168, 67, 0, 0.8);
+  }
+  /* Responsive */
+  @media (max-width: 900px) {
+    .forms-row {
+      flex-direction: column;
+    }
+    .form-section {
+      flex-basis: 100%;
+    }
+    form {
+      flex-direction: column;
+      gap: 12px;
+    }
+    label {
+      min-width: auto;
+      font-size: 1.15rem;
+      margin-bottom: 6px;
+    }
+    input[type="number"],
+    input[type="date"],
+    select,
+    button {
+      width: 100%;
+      min-width: auto;
+      font-size: 1.3rem;
+      padding: 14px 16px;
+      border-radius: 14px;
+    }
+    button {
+      padding: 16px 0;
+      min-width: auto;
+    }
+    .summary-cards {
+      flex-direction: column;
+      gap: 24px;
+    }
+    .card {
+      flex-basis: auto;
+      padding: 28px 0;
+      font-size: 1.2rem;
+    }
+    .card h3 {
+      font-size: 1.4rem;
+    }
+    .card p {
+      font-size: 2.6rem;
+    }
+    .log-container {
+      font-size: 1rem;
+      padding: 18px 24px;
+      max-height: 250px;
+    }
+    table {
+      font-size: 1.05rem;
+    }
+    th, td {
+      padding: 14px 16px;
+    }
+    #reset-button {
+      max-width: 100%;
+      font-size: 1.5rem;
+      padding: 18px 0;
+      border-radius: 20px;
+    }
+  }
+
+  /* Additional smaller screen tweaks for narrow phone widths */
+  @media (max-width: 480px) {
+    body {
+      padding: 15px 12px 30px;
+    }
+    h1 {
+      font-size: 2.2rem;
+    }
+    h2 {
+      font-size: 1.4rem;
+      margin: 18px 0 12px 0;
+    }
+    label {
+      font-size: 1.2rem;
+    }
+    input[type="number"],
+    input[type="date"],
+    select,
+    button {
+      font-size: 1.25rem;
+      padding: 16px 14px;
+    }
+    .card h3 {
+      font-size: 1.3rem;
+    }
+    .card p {
+      font-size: 2.4rem;
+    }
+    table {
+      font-size: 1rem;
+    }
+    #reset-button {
+      font-size: 1.4rem;
+      padding: 16px 0;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>تطبيق متابعة النفقات والدخل</h1>
+
+<div class="container" role="region" aria-label="نموذج إدخال النفقات والدخل">
+  <div class="forms-row" >
+    <!-- Expense Form -->
+    <section class="form-section" aria-labelledby="expense-form-title" tabindex="0">
+      <h2 id="expense-form-title">إضافة نفقة</h2>
+      <form id="form-expense" aria-label="نموذج إضافة نفقة">
+        <label for="expense-amount">المبلغ (د.أ)</label>
+        <input type="number" id="expense-amount" min="0.01" step="0.01" required placeholder="0.00" />
+        <label for="expense-category">الفئة</label>
+        <select id="expense-category" required>
+          <option value="" disabled selected>اختر الفئة</option>
+          <option value="طعام">طعام</option>
+          <option value="مواصلات">مواصلات</option>
+          <option value="ترفيه">ترفيه</option>
+          <option value="سكن">سكن</option>
+          <option value="تعليم">تعليم</option>
+          <option value="صحة">صحة</option>
+          <option value="أخرى">أخرى</option>
+        </select>
+        <label for="expense-date">التاريخ</label>
+        <input type="date" id="expense-date" required />
+        <button type="submit" aria-label="إضافة النفقة">إضافة النفقة</button>
+      </form>
+    </section>
+
+    <!-- Income Form -->
+    <section class="form-section" aria-labelledby="income-form-title" tabindex="0">
+      <h2 id="income-form-title">إضافة دخل</h2>
+      <form id="form-income" aria-label="نموذج إضافة دخل">
+        <label for="income-amount">المبلغ (د.أ)</label>
+        <input type="number" id="income-amount" min="0.01" step="0.01" required placeholder="0.00" />
+        <label for="income-category">الفئة</label>
+        <select id="income-category" required>
+          <option value="" disabled selected>اختر الفئة</option>
+          <option value="راتب شهري">راتب شهري</option>
+          <option value="بدل إيجار">بدل إيجار</option>
+          <option value="عمل إضافي">عمل إضافي</option>
+          <option value="أخرى">أخرى</option>
+        </select>
+        <label for="income-date">التاريخ</label>
+        <input type="date" id="income-date" required />
+        <button type="submit" aria-label="إضافة الدخل">إضافة الدخل</button>
+      </form>
+    </section>
+  </div>
+</div>
+
+<div class="container" aria-live="polite" aria-atomic="true" role="region" aria-label="التقارير المالية">
+  <h2>التقارير</h2>
+  <div class="report-controls" role="region" aria-label="تحكم التقارير">
+    <label for="report-period">اختر الفترة:</label>
+    <select id="report-period" aria-controls="report-summary report-detail" aria-label="اختر فترة التقرير">
+      <option value="day">يومي</option>
+      <option value="week" selected>أسبوعي</option>
+      <option value="month">شهري</option>
+    </select>
+  </div>
+  <div id="report-summary" class="summary-cards" aria-live="polite" aria-atomic="true" tabindex="0">
+    <!-- Summary cards for total expense, income and balance -->
+  </div>
+  <div id="report-detail" role="region" aria-label="تفاصيل النفقات حسب الفئة" tabindex="0">
+    <!-- Table with expenses by category -->
+  </div>
+  
+  <button id="reset-button" aria-label="زر لتصفير التطبيق وإعادة البدء">تصفير التطبيق وإعادة البدء</button>
+  
+</div>
+
+<div class="container" aria-live="polite" aria-atomic="true" aria-label="سجل العمليات" role="region">
+  <h2>سجل العمليات</h2>
+  <div class="log-container" id="log-container" role="log" aria-live="polite" tabindex="0" aria-label="سجل الأحداث">
+    <!-- Log entries appear here -->
+  </div>
+</div>
+
+<script>
+  // Data Storage Keys
+  const EXPENSES_KEY = 'expense-tracker-expenses';
+  const INCOMES_KEY = 'expense-tracker-incomes';
+  const LOGS_KEY = 'expense-tracker-logs';
+
+  // Elements
+  const formExpense = document.getElementById('form-expense');
+  const formIncome = document.getElementById('form-income');
+  const logContainer = document.getElementById('log-container');
+  const reportPeriodSelect = document.getElementById('report-period');
+  const reportSummary = document.getElementById('report-summary');
+  const reportDetail = document.getElementById('report-detail');
+  const resetButton = document.getElementById('reset-button');
+
+  // Hold data in memory for current session
+  let expenses = [];
+  let incomes = [];
+  let logs = [];
+
+  // Utility function to format date as yyyy-mm-dd
+  function formatDate(date) {
+    const d = new Date(date);
+    if (isNaN(d)) return '';
+    return d.toISOString().slice(0,10);
+  }
+
+  // Load stored data
+  function loadData() {
+    try {
+      expenses = JSON.parse(localStorage.getItem(EXPENSES_KEY)) || [];
+    } catch(e) { expenses = []; }
+    try {
+      incomes = JSON.parse(localStorage.getItem(INCOMES_KEY)) || [];
+    } catch(e) { incomes = []; }
+    try {
+      logs = JSON.parse(localStorage.getItem(LOGS_KEY)) || [];
+    } catch(e) { logs = []; }
+  }
+
+  // Save data
+  function saveData() {
+    localStorage.setItem(EXPENSES_KEY, JSON.stringify(expenses));
+    localStorage.setItem(INCOMES_KEY, JSON.stringify(incomes));
+    localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+  }
+
+  // Add log entry
+  function addLogEntry(text) {
+    const timestamp = new Date().toLocaleString('ar-EG');
+    logs.unshift(`${timestamp} - ${text}`);
+    if (logs.length > 100) logs.pop(); // limit log size
+    saveData();
+    renderLogs();
+  }
+
+  // Render log entries
+  function renderLogs() {
+    logContainer.innerHTML = '';
+    logs.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.textContent = entry;
+      logContainer.appendChild(div);
+    });
+  }
+
+  // Validate date input to prevent future dates
+  function validateDateInput(dateInput) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    if (!dateInput) return false;
+    const inputDate = new Date(dateInput);
+    inputDate.setHours(0,0,0,0);
+    return inputDate <= today;
+  }
+
+  // Play error sound and alert
+  function alertWithSound(message) {
+    alert(message);
+  }
+
+  // Add expense handler
+  formExpense.addEventListener('submit', e => {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('expense-amount').value);
+    const category = document.getElementById('expense-category').value;
+    const date = document.getElementById('expense-date').value;
+
+    if (isNaN(amount) || amount <= 0) {
+      alertWithSound('يرجى إدخال مبلغ صالح للنفقات');
+      return;
+    }
+    if (!category) {
+      alertWithSound('يرجى اختيار فئة النفقة');
+      return;
+    }
+    if (!validateDateInput(date)) {
+      alertWithSound('يرجى اختيار تاريخ صالح (لا يمكن أن يكون في المستقبل)');
+      return;
+    }
+
+    expenses.push({ amount, category, date });
+    saveData();
+    addLogEntry(`تم إضافة نفقة: ${amount.toFixed(2)} ر.س في فئة "${category}" بتاريخ ${date}`);
+
+    formExpense.reset();
+    generateReport();
+  });
+
+  // Add income handler
+  formIncome.addEventListener('submit', e => {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('income-amount').value);
+    const category = document.getElementById('income-category').value;
+    const date = document.getElementById('income-date').value;
+
+    if (isNaN(amount) || amount <= 0) {
+      alertWithSound('يرجى إدخال مبلغ صالح للدخل');
+      return;
+    }
+    if (!category) {
+      alertWithSound('يرجى اختيار فئة الدخل');
+      return;
+    }
+    if (!validateDateInput(date)) {
+      alertWithSound('يرجى اختيار تاريخ صالح (لا يمكن أن يكون في المستقبل)');
+      return;
+    }
+
+    incomes.push({ amount, category, date });
+    saveData();
+    addLogEntry(`تم إضافة دخل: ${amount.toFixed(2)} ر.س في فئة "${category}" بتاريخ ${date}`);
+
+    formIncome.reset();
+    generateReport();
+  });
+
+  // Generate report based on selected period
+  function generateReport() {
+    const period = reportPeriodSelect.value;
+
+    const now = new Date();
+    let startDate;
+    let endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (period === 'day') {
+      startDate = new Date(endDate);
+    } else if (period === 'week') {
+      let day = endDate.getDay();
+      startDate = new Date(endDate);
+      startDate.setDate(endDate.getDate() - day);
+    } else if (period === 'month') {
+      startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+    } else {
+      startDate = new Date(0);
+    }
+    endDate.setHours(23,59,59,999);
+
+    const filteredExpenses = expenses.filter(({ date }) => {
+      const d = new Date(date + "T00:00:00");
+      return d >= startDate && d <= endDate;
+    });
+    const filteredIncomes = incomes.filter(({ date }) => {
+      const d = new Date(date + "T00:00:00");
+      return d >= startDate && d <= endDate;
+    });
+
+    const totalExpense = filteredExpenses.reduce((acc, curr) => acc + curr.amount, 0);
+    const totalIncome = filteredIncomes.reduce((acc, curr) => acc + curr.amount, 0);
+    const balance = totalIncome - totalExpense;
+
+    const expenseByCategory = {};
+    filteredExpenses.forEach(({ category, amount }) => {
+      if (!expenseByCategory[category]) expenseByCategory[category] = 0;
+      expenseByCategory[category] += amount;
+    });
+
+    reportSummary.innerHTML = `
+      <div class="card" aria-label="إجمالي الدخل">
+        <h3>إجمالي الدخل</h3>
+        <p>${totalIncome.toFixed(2)} د.أ</p>
+      </div>
+      <div class="card" aria-label="إجمالي النفقات">
+        <h3>إجمالي النفقات</h3>
+        <p>${totalExpense.toFixed(2)} د.أ</p>
+      </div>
+      <div class="card" aria-label="المبلغ المتبقي">
+        <h3>المبلغ المتبقي</h3>
+        <p>${balance.toFixed(2)} د.أ</p>
+      </div>
+    `;
+
+    let tableHtml = `<table aria-describedby="report-summary">
+      <thead>
+        <tr>
+          <th>الفئة</th>
+          <th>المبلغ</th>
+          <th>النسبة من النفقات</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    if (Object.keys(expenseByCategory).length === 0) {
+      tableHtml += `<tr><td colspan="3">لا توجد نفقات في هذه الفترة</td></tr>`;
+    } else {
+      for (const [cat, amt] of Object.entries(expenseByCategory)) {
+        const percent = totalExpense ? ((amt / totalExpense) * 100).toFixed(1) : "0.0";
+        tableHtml += `
+          <tr>
+            <td>${cat}</td>
+            <td>${amt.toFixed(2)} د.أ</td>
+            <td>${percent}%</td>
+          </tr>
+        `;
+      }
+    }
+    tableHtml += `</tbody></table>`;
+    reportDetail.innerHTML = tableHtml;
+  }
+
+  // Reset application data
+  resetButton.addEventListener('click', () => {
+    if(confirm('هل أنت متأكد أنك تريد تصفير التطبيق وإعادة البدء من جديد؟ سيتم حذف جميع البيانات المسجلة.')) {
+      expenses = [];
+      incomes = [];
+      logs = [];
+      saveData();
+      renderLogs();
+      generateReport();
+      alert('تم تصفير التطبيق. يمكنك البدء من جديد.');
+    }
+  });
+
+  function init() {
+    loadData();
+    renderLogs();
+    generateReport();
+    const today = formatDate(new Date());
+    document.getElementById('expense-date').setAttribute('max', today);
+    document.getElementById('income-date').setAttribute('max', today);
+  }
+
+  reportPeriodSelect.addEventListener('change', generateReport);
+
+  init();
+</script>
+</body>
+</html>
+
